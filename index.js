@@ -3,7 +3,7 @@
 const taskContainer = document.querySelector(".task__container");
 
 //global store 
-const globalStore = [];
+let globalStore = [];
 
 const newCard =({
     id, 
@@ -12,11 +12,31 @@ const newCard =({
     taskDescription, 
     taskType
 }) => 
-    `<div class="col-md-6 col-lg-4 id =${id}">
+    `<div class="col-md-6 col-lg-4" id =${id}>
         <div class="card">
             <div class="card-header d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-outline-success"><i class="fas fa-pencil-alt"></i></button>
-                <button type="button" class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i></button>
+                <button 
+                    type="button" 
+                    id=${id}
+                    class="btn btn-outline-success" onClick="editCard.apply(this, arguments)">
+                    <i 
+                        class="fas 
+                        fa-pencil-alt"
+                        id =${id}
+                        onClick="editCard.apply(this, arguments)">
+                    </i>
+                </button>
+                <button 
+                    type="button"  
+                    id=${id}  
+                    class="btn btn-outline-danger" 
+                    onClick="deleteCard.apply(this, arguments)">
+                    <i 
+                        class="fas fa-trash-alt" 
+                        id=${id} 
+                        onClick="deleteCard.apply(this, arguments)">
+                    </i>
+                </button>
             </div>
             <img class="rounded"
                 src=${imageUrl}
@@ -37,7 +57,7 @@ const newCard =({
 
     const loadInitialTaskCards = () => {
         //access localstorage
-        const getInitialData = localStorage.getItem("tasky");
+        const getInitialData = localStorage.tasky;
         if(!getInitialData) return;
         
         //convert stringifeigd to objecct
@@ -50,8 +70,12 @@ const newCard =({
             globalStore.push(card);
         });
     };
+
+    const updateLocalStorage = () =>{
+        localStorage.setItem("tasky", JSON.stringify({cards: globalStore}));
+    }
 //getting the element value from html
-const saveChanges = () =>{
+    const saveChanges = () =>{
     const taskData = {
         id:`${Date.now()}`,  //unique number for card id
         imageUrl: document.getElementById("imageurl").value,
@@ -66,25 +90,73 @@ const saveChanges = () =>{
     
     //calling local storage API i.e application programming interface
     //add to local storage
-    localStorage.setItem("tasky", JSON.stringify({cards: globalStore}));
+    updateLocalStorage();
     
 
-};
+    };
+
+    const deleteCard = (event) => {
+        //id
+        event = window.event;
+        const targetID = event.target.id;
+        const tagname = event.target.tagName;
+        console.log(tagname);
+        //search the globalStore, Remove the object which matches with the id
+        globalStore = globalStore.filter((cardObject) => cardObject.id != targetID);
+        updateLocalStorage();
+         //WE have access DOM to remove them 
+        if(tagname == "BUTTON"){
+            return taskContainer.removeChild(
+                event.target.parentNode.parentNode.parentNode
+            );
+        }
+
+        return taskContainer.removeChild(
+            event.target.parentNode.parentNode.parentNode.parentNode
+        );
+        
+    };
 
 
-    //parent object of browser -> window
+    const editCard = (event) => {
+        event = window.event;
+        const targetID = event.target.id;
+        const tagname = event.target.tagName;
+
+        let parentElement;
+
+        if(tagname === "BUTTON") {
+            parentElement = event.target.parentNode.parentNode;
+        }
+
+        else{
+            parentElement = event.target.parentNode.parentNode.parentNode;
+        }
+        let taskTitle =parentElement.childNodes[5].childNodes[1];
+        let taskDescription=parentElement.childNodes[5].childNodes[3];
+        let taskType =parentElement.childNodes[5].childNodes[5];
+        let submitButton = parentElement.childNodes[7].childNodes[1];
+
+        taskTitle.setAttribute("contenteditable", "true");
+        taskDescription.setAttribute("contenteditable", "true");
+        taskType.setAttribute("contenteditable", "true");
+        submitButton.innerHTML= "save Changes";
+    
+    };
+
+        //parent object of browser -> window
     //parent object html -> DOM -> Document
     //localstorage -> interface -> programming
     // interface -> it provides the interface to work with a local storage
 
     //issues
     
-    //the modal was not closing upon adding new card
-    //the cards were deleted after refresh -> localstorage(5mb)
+    //the modal was not closing upon adding new card   //solved
+    //the cards were deleted after refresh -> localstorage(5mb)  //solved
 
     //features
 
-    //delete modal feature
+    //delete modal feature //solved
     //open task
     //edit task
 
