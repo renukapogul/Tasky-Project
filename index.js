@@ -181,6 +181,11 @@ const newCard =({
             return task;
        });
        updateLocalStorage();
+       taskTitle.setAttribute("contenteditable", "false");
+        taskDescription.setAttribute("contenteditable", "false");
+        taskType.setAttribute("contenteditable", "false");
+       submitButton.removeAttribute("onClick");
+        submitButton.innerHTML= "Open Task";
     };
 
         //parent object of browser -> window
